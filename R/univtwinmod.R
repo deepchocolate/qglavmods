@@ -5,6 +5,7 @@
 #' @param model A list of variance components (A,C,D,E) and labels, eg list(A='a',C='c',E='e').
 #' @param append Any additional syntax.
 #' @param varLabels Currently not used.
+#' @export
 univTwinMod <- function (measT1, measT2, model=list(A='a',C='c',E='e'), append='',varLabels=list(A='add',C='com',D='dom',E='uni'),
                             independentT1=list(int='1'),independentT2=list(int='1')) {
   corrs <- list(A=c(0.5,1),C=c(1,1),D=c(0.25,1))

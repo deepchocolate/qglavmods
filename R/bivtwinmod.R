@@ -4,6 +4,7 @@
 #' @param measT2 A list of variable name and a designated label eg label(varName1="label2") for measure 2.
 #' @param regressions A list of lists for the regressions for measT1 and measT1.
 #' @param model A list of variance components (A,C,D,E) and labels, eg list(A='a',C='c',E='e').
+#' @export
 bivTwinMod <- function (measT1, measT2,regressions=list(list(int=1,fem='female'),list(int=1,fem='female')), model=list(A='a',C='c',E='e')) {
   corrs <- list(A=c(0.5,1),C=c(1,1),D=c(0.25,1))
   defs <- c()
