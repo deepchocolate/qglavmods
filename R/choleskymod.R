@@ -2,6 +2,7 @@
 #'
 #' @param measures A list of measurments and regressions, eg list(M1=list(1, female))
 #' @param suffixGroup A vector of measurment suffix for MZ and DZ group.
+#' @export
 choleskyMod <- function (measures, suffixGroup, mod=list(A='a',C='c',E='e')) {
   m <- ''
   for (meas in names(measures)) {
@@ -12,28 +13,99 @@ choleskyMod <- function (measures, suffixGroup, mod=list(A='a',C='c',E='e')) {
     regr <- paste0(meas, suffixGroup, collapse=' + ')
     regr <- paste0(regr, ' ~ ')
     for (var in measures[[meas]]) {
-      lab <- paste0('b', var)
+      lab <- paste0('param_', var)
       lab <- paste0('c(',lab,',',lab,')*',var)
       lab <- paste0(lab, suffixGroup,collapse=' + ' )
       regr <- paste0(regr,' + ', lab)
     }
     m <- paste0(m, regr,'\n')
   }
+  # Store parameter names by measure
+  parameters <- list()
+  # Latent variables
   for (latVar in names(mod)) {
-    for (suffix in groupSuffix) {
-      paramLab <- paste0(mod[[latVar]],'_')
-      i <- 1
-      for (meas in names(measures)) {
-        latCovs <- ''
-        latReg <- paste0(latVar,'_',suffix, '_', meas,' =~ c(',paramLab, '')
+    #parameters[[latVar]] <- list()
+    nMeasures <- length(measures)
+    for (suffix in suffixGroup) {
+      paramBaseLab <- paste0('param_',mod[[latVar]])
+      maxMeas <- 1
+      for (measLat in names(measures)) {
+        latVarName <- paste0(latVar,suffix, '_', measLat)
+        latReg <- paste0(latVarName,' =~ ')
+        i <- 1
+        loadings <- c()
+        while (i <= maxMeas) {
+          latCovs <- ''
+          meas <- names(measures)[i]
+          paramLab <- paste0(paramBaseLab, '_',meas)
+          if (i != maxMeas) paramLab <- paste0(paramLab, '_', names(measures)[i+1])
+          print(paramLab)
+          parameters[[measLat]] <- c(parameters[[measLat]], paramLab)
+          loadings <- c(loadings, paste0('c(',paramLab,',', paramLab, ')*',meas))
+          i <- i + 1
+        }
+        latReg <- paste0(latReg, paste(loadings, collapse=' + '))
+        m <- paste0(m, latReg, '\n')
+        maxMeas <- maxMeas + 1
       }
     }
-
+    # Add up covariance restrictions
+    for (measLat in names(measures)) {
+      latVars <- c()
+      for (suffix in suffixGroup) {
+        latVarName <- paste0(latVar,suffix, '_', measLat)
+        latVars <- c(latVars, latVarName)
+      }
+      if (latVar %in% c('A','C')) {
+        if (latVar == 'A') latCov <- paste(latVars,collapse = '~~ c(1, 0.5)*')
+        else latCov <- paste(latVars,collapse = '~~ c(1, 1)*')
+        m <- paste0(m, latCov, "\n")
+      }
+    }
+  }
+  # Parameter definitions
+  # Variances
+  for (measure in names(measures)) {
+    params <- paste0(parameters[[measure]], collapse=')^2 + (')
+    m <- paste0(m, 'var_', measure, ' := (',params, ")^2\n")
   }
   return(m)
 }
-choleskyMod(list(M1=list(1, 'female'), M2=list(1, 'female')), c('_1','_2'))
+lmod <- choleskyMod(list(M1=list(1, 'female'), M2=list(1, 'female')), c('_1','_2'))
+cat(lmod)
 myChol3 <- '
+var_adh := (a_Adh)^2 + (c_Adh)^2 + (e_Adh)^2
+sh_A_Adh := (a_Adh)^2/var_adh
+sh_C_Adh := (c_Adh)^2/var_adh
+sh_E_Adh := (e_Adh)^2/var_adh
+var_gpa := (a_GPA)^2 + (c_GPA)^2 + (e_GPA)^2 + (a_Adh_GPA)^2 + (c_Adh_GPA)^2 + (e_Adh_GPA)^2
+sh_A_gpa := (a_GPA)^2/var_gpa
+sh_C_gpa := (c_GPA)^2/var_gpa
+sh_E_gpa := (e_GPA)^2/var_gpa
+sh_A_Adh_gpa := (a_Adh_GPA)^2/var_gpa
+sh_C_Adh_gpa := (c_Adh_GPA)^2/var_gpa
+sh_E_Adh_gpa := (e_Adh_GPA)^2/var_gpa
+var_ump := (a_Adh_mUmp)^2 + (c_Adh_mUmp)^2 + (e_Adh_mUmp)^2 +(a_GPA_mUmp)^2 + (c_GPA_mUmp)^2 + (e_GPA_mUmp)^2 + (a_mUmp)^2 + (c_mUmp)^2 + (e_mUmp)^2
+sh_A_ump := (a_mUmp)^2/var_ump
+sh_C_ump := (c_mUmp)^2/var_ump
+sh_E_ump := (e_mUmp)^2/var_ump
+sh_A_adh_ump := (a_Adh_mUmp)^2/var_ump
+sh_C_adh_ump := (c_Adh_mUmp)^2/var_ump
+sh_E_adh_ump := (e_Adh_mUmp)^2/var_ump
+sh_A_gpa_ump := (a_GPA_mUmp)^2/var_ump
+sh_C_gpa_ump := (c_GPA_mUmp)^2/var_ump
+sh_E_gpa_ump := (e_GPA_mUmp)^2/var_ump
+
+rg_adh_gpa := a_Adh_GPA/(a_GPA*a_Adh)^.5
+rc_adh_gpa := c_Adh_GPA/(c_GPA*c_Adh)^.5
+re_adh_gpa := e_Adh_GPA/(e_GPA*a_Adh)^.5
+rg_adh_ump := a_Adh_mUmp/(a_mUmp*a_Adh)^.5
+rc_adh_ump := c_Adh_mUmp/(c_mUmp*c_Adh)^.5
+re_adh_ump := e_Adh_mUmp/(e_mUmp*e_Adh)^.5
+rg_gpa_ump := a_GPA_mUmp/(a_GPA*a_mUmp)^.5
+rc_gpa_ump := c_GPA_mUmp/(c_GPA*c_mUmp)^.5
+re_gpa_ump := e_GPA_mUmp/(e_GPA*e_mUmp)^.5
+
 # Additive genetics
 # ADHD symptoms
 A1_Adh =~ c(a_Adh, a_Adh)*adh_1 + c(a_Adh_GPA, a_Adh_GPA)*GPA_1 + c(a_Adh_mUmp, a_Adh_mUmp)*mUmp_1
