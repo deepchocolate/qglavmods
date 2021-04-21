@@ -20,8 +20,11 @@ bivTwinMod <- function (measT1, measT2,regressions=list(list(int=1,fem='female')
     }
     reg <- paste(reg,collapse='+')
     m <- paste0(m,names(measT1[i]),' ~ ',paste(reg,collapse=' + '),'\n')
+    print(m)
     reg <- c()
-    for (x in names(regressions[[i]])) reg <- c(reg,paste0('c(',x,',',x,')*',regressions[[i]][[x]],ifelse(!is.numeric(regressions[[i]][[x]]),'_2','')))
+    for (x in names(regressions[[i]])) {
+      reg <- c(reg,paste0('c(',x,',',x,')*',regressions[[i]][[x]],ifelse(!is.numeric(regressions[[i]][[x]]),'_2','')))
+    }
     reg <- paste(reg,collapse='+')
     m <- paste0(m,names(measT2[i]),' ~ ',paste(reg,collapse=' + '),'\n')
   }

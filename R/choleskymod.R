@@ -66,6 +66,7 @@ choleskyMod <- function (measures, suffixGroup, mod=list(A='a',C='c',E='e')) {
   # Parameter definitions
   # Variances
   for (measure in names(measures)) {
+    print(parameters[[measure]])
     params <- paste0(parameters[[measure]], collapse=')^2 + (')
     m <- paste0(m, 'var_', measure, ' := (',params, ")^2\n")
   }
