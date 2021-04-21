@@ -1,12 +1,17 @@
-#' Generate syntax for a bivariate twin model
+#' Generate lavaan syntax for a bivariate twin model.
+#' The expected data structure is a wide format over twin pairs.
+#' When running lavaan, the option group.label should be used
+#' to indicate the value of MZ and then the DZ pair, e.g. group.label=c("MZ", "DZ").
+#' Otherwise lavaan may mix up the twin pair correlations based on the order of entry
+#' in the data.
 #'
-#' @param measT1 A list of variable name and a designated label eg label(varName1="label1") for measure 1.
-#' @param measT2 A list of variable name and a designated label eg label(varName1="label2") for measure 2.
+#' @param measT1 A list of variable name and a designated label eg label(varName1="label1", varName2="label2") for twin 1.
+#' @param measT2 A list of variable name and a designated label eg label(varName1="label1", varName2="label2") for twin 2.
 #' @param regressions A list of lists for the regressions for measT1 and measT1.
 #' @param model A list of variance components (A,C,D,E) and labels, eg list(A='a',C='c',E='e').
 #' @export
 bivTwinMod <- function (measT1, measT2,regressions=list(list(int=1,fem='female'),list(int=1,fem='female')), model=list(A='a',C='c',E='e')) {
-  corrs <- list(A=c(0.5,1),C=c(1,1),D=c(0.25,1))
+  corrs <- list(A=c(1,0.5),C=c(1,1),D=c(1, 0.25)) # MZ/DZ correlations
   defs <- c()
   defsVar <- list()
   defsCorr <- list()
@@ -20,7 +25,6 @@ bivTwinMod <- function (measT1, measT2,regressions=list(list(int=1,fem='female')
     }
     reg <- paste(reg,collapse='+')
     m <- paste0(m,names(measT1[i]),' ~ ',paste(reg,collapse=' + '),'\n')
-    print(m)
     reg <- c()
     for (x in names(regressions[[i]])) {
       reg <- c(reg,paste0('c(',x,',',x,')*',regressions[[i]][[x]],ifelse(!is.numeric(regressions[[i]][[x]]),'_2','')))
@@ -28,6 +32,7 @@ bivTwinMod <- function (measT1, measT2,regressions=list(list(int=1,fem='female')
     reg <- paste(reg,collapse='+')
     m <- paste0(m,names(measT2[i]),' ~ ',paste(reg,collapse=' + '),'\n')
   }
+  cat(m)
   for (fac in names(model)) {
     defsCorr[[fac]] <- c()
     if (fac == 'A') {m <- paste0(m,'# Genetics\n');}
@@ -54,13 +59,10 @@ bivTwinMod <- function (measT1, measT2,regressions=list(list(int=1,fem='female')
     corrParam <- paste0('c(',paste0(corrs[[fac]],c(corrParam,corrParam),collapse=','),')')
     if (fac == 'E') corrParam <- 0;
     if (fac == 'C') corrParam <- paste0('c(r',fac,',r',fac,')');
-    #for (i in 1:2) {
     m <- paste0(m,fac,names(measT1[1]),' ~~ ',corrParam,'*',fac,names(measT2[2]),'\n')
     m <- paste0(m,fac,names(measT1[2]),' ~~ ',corrParam,'*',fac,names(measT2[1]),'\n')
-    #}
     m <- paste0(m,'# Cross-trait correlations\n')
     corrParam <- paste0('c(','r',fac,',r',fac,')')
-    #if (fac == 'E') corrParam <- 0;
     m <- paste0(m,fac,names(measT1[1]),' ~~ ',corrParam,'*',fac,names(measT1[2]),'\n')
     m <- paste0(m,fac,names(measT2[1]),' ~~ ',corrParam,'*',fac,names(measT2[2]),'\n')
     for (i in 1:2) {
@@ -75,14 +77,12 @@ bivTwinMod <- function (measT1, measT2,regressions=list(list(int=1,fem='female')
   m <- paste0(m,'# Defined parameters\n# Squared correlations\n')
   m <- paste0(m,paste0(defs,collapse='\n'),'\n')
   m <- paste0(m,'# Variance explained in each trait\n')
-  #print(defsVar)
   for (x in names(defsVar)) {
     tot <- paste0(defsVar[[x]],collapse='+')
     for (y in defsVar[[x]]) {
       sh <- paste0(y,'_share := ')
       m <- paste0(m,sh,y,'/(', tot,')\n')
     }
-    #m <- paste0(m,sh,'\n')
   }
   m <- paste0(m, '# Genetic and environmental correlations between traits\n')
   # Add these definitions so that all parameters are easily accessible through the lhs column in results
