@@ -139,12 +139,16 @@ triCorrFacLavMod <- function (measures, labels, model=list(A=1,C=1,E=1)) {
   
   # Correlation A1_S <-> A2_Att
   ### Cross twin cross trait
-  A1_{L1} ~~ c(1*rA_{L1}_{L3}, 0.5*rA_{L1}_{L3})*A2_{L3}
-  A1_{L1} ~~ c(1*rA_{L1}_{L2}, 0.5*rA_{L1}_{L2})*A2_{L2}
-  A1_{L2} ~~ c(1*rA_{L2}_{L3}, 0.5*rA_{L2}_{L3})*A2_{L3}
-  A1_{L2} ~~ c(1*rA_{L1}_{L2}, 0.5*rA_{L1}_{L2})*A2_{L1}
-  A1_{L3} ~~ c(1*rA_{L2}_{L3}, 0.5*rA_{L2}_{L3})*A2_{L2}
-  A1_{L3} ~~ c(1*rA_{L1}_{L3}, 0.5*rA_{L1}_{L3})*A2_{L1}
+  A1_{L1} ~~ c(1*rA_{L1}_{L3}, 0.5*rA_{L1}_{L3}_2)*A2_{L3}
+  A1_{L1} ~~ c(1*rA_{L1}_{L2}, 0.5*rA_{L1}_{L2}_2)*A2_{L2}
+  A1_{L2} ~~ c(1*rA_{L2}_{L3}, 0.5*rA_{L2}_{L3}_2)*A2_{L3}
+  A1_{L2} ~~ c(1*rA_{L1}_{L2}, 0.5*rA_{L1}_{L2}_2)*A2_{L1}
+  A1_{L3} ~~ c(1*rA_{L2}_{L3}, 0.5*rA_{L2}_{L3}_2)*A2_{L2}
+  A1_{L3} ~~ c(1*rA_{L1}_{L3}, 0.5*rA_{L1}_{L3}_2)*A2_{L1}
+  # Constraints (force rA to be half in the DZ group)
+  rA_{L1}_{L3}_2 == 0.5*rA_{L1}_{L3}
+  rA_{L1}_{L2}_2 == 0.5*rA_{L1}_{L2}
+  rA_{L2}_{L3}_2 == 0.5*rA_{L2}_{L3}
   
   ### Cross trait
   # Twin 1
