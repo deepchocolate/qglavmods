@@ -1,5 +1,6 @@
 #' Generate lavaan syntax for a correlated factors solution of a bivariate
-#' twin model. #' When running lavaan, the option group.label should be used
+#' twin model. 
+#' When running lavaan, the option group.label should be used
 #' to indicate the value of MZ and then the DZ pair, e.g. group.label=c("MZ", "DZ").
 #' Otherwise lavaan may mix up the twin pair correlations based on the order of entry
 #' in the data.
@@ -9,6 +10,7 @@
 #' @param measures A named list. Measurements as names, values are list of variables to use in regressions list(meas_1=list('1, 'sex'), meas_2=list('1','sex'))
 #' @param labels A list of labels for each measurement, eg list('phenoA', 'phenoB')
 #' @param model A list of variance components to include, eg list(A, C=0, E=1) supresses the C component.
+#' @export
 bivCorrFacLavMod <- function (measures, labels, model=list(A=1,C=1,E=1)) {
   mod <- '# Traits in twins are assumed to be uncorrelated
   # Regressions
@@ -103,7 +105,8 @@ bivCorrFacLavMod <- function (measures, labels, model=list(A=1,C=1,E=1)) {
 }
 
 #' Generate lavaan syntax for a correlated factors solution of a trivariate
-#' twin model. #' When running lavaan, the option group.label should be used
+#' twin model. 
+#' When running lavaan, the option group.label should be used
 #' to indicate the value of MZ and then the DZ pair, e.g. group.label=c("MZ", "DZ").
 #' Otherwise lavaan may mix up the twin pair correlations based on the order of entry
 #' in the data.
@@ -113,6 +116,7 @@ bivCorrFacLavMod <- function (measures, labels, model=list(A=1,C=1,E=1)) {
 #' @param measures A named list. Measurements as names, values are list of variables to use in regressions list(meas_1=list('1, 'sex'), meas_2=list('1','sex'), meas_3=list('1','sex'))
 #' @param labels A list of labels for each measurement, eg list('phenoA', 'phenoB', 'phenoC')
 #' @param model A list of variance components to include, eg list(A, C=0, E=1) supresses the C component.
+#' @export
 triCorrFacLavMod <- function (measures, labels, model=list(A=1,C=1,E=1)) {
   mod <- '
   # Regressions
