@@ -24,10 +24,12 @@ bivCorrFacLavMod <- function (measures, labels, model=list(A=1,C=1,E=1)) {
   A_{L1}_2 =~ c(a_{L1}, a_{L1})*{M1}_2
   A_{L2}_2 =~ c(a_{L2}, a_{L2})*{M2}_2
   A_{L2}_1 ~~ c(1, 0.5)*A_{L2}_2
-  # Cross-twin cross-trait correlations
-  A_{L1}_1 ~~ c(1*rA_{L1}_{L2}, 0.5*rA_{L1}_{L2})*A_{L2}_2
-  A_{L2}_1 ~~ c(1*rA_{L1}_{L2}, 0.5*rA_{L1}_{L2})*A_{L1}_2
-  # Cross-trait correlations
+  ### Cross-twin cross-trait correlations
+  A_{L1}_1 ~~ c(rA_{L1}_{L2}, rA_{L1}_{L2}_2)*A_{L2}_2
+  A_{L2}_1 ~~ c(rA_{L1}_{L2}, rA_{L1}_{L2}_2)*A_{L1}_2
+  # Constraints
+  rA_{L1}_{L2}_2 == 0.5*rA_{L1}_{L2}
+  ### Cross-trait correlations
   A_{L1}_1 ~~ c(rA_{L1}_{L2}, rA_{L1}_{L2})*A_{L2}_1
   A_{L1}_2 ~~ c(rA_{L1}_{L2}, rA_{L1}_{L2})*A_{L2}_2
   # Shared environment
