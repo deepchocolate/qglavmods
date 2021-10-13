@@ -1,6 +1,14 @@
-# measures List of variablename=covariates
-# labels List of varname=label
-# model List of model for each trait
+#' Generate lavaan syntax for a correlated factors solution of a bivariate
+#' twin model. #' When running lavaan, the option group.label should be used
+#' to indicate the value of MZ and then the DZ pair, e.g. group.label=c("MZ", "DZ").
+#' Otherwise lavaan may mix up the twin pair correlations based on the order of entry
+#' in the data.
+#' 
+#' It is assumed that measurements in the data are suffixed by "_1" and "_2"
+#' 
+#' @param measures A named list. Measurements as names, values are list of variables to use in regressions list(meas_1=list('1, 'sex'), meas_2=list('1','sex'))
+#' @param labels A list of labels for each measurement, eg list('phenoA', 'phenoB')
+#' @param model A list of variance components to include, eg list(A, C=0, E=1) supresses the C component.
 bivCorrFacLavMod <- function (measures, labels, model=list(A=1,C=1,E=1)) {
   mod <- '# Traits in twins are assumed to be uncorrelated
   # Regressions
@@ -94,6 +102,17 @@ bivCorrFacLavMod <- function (measures, labels, model=list(A=1,C=1,E=1)) {
   return(mod)
 }
 
+#' Generate lavaan syntax for a correlated factors solution of a trivariate
+#' twin model. #' When running lavaan, the option group.label should be used
+#' to indicate the value of MZ and then the DZ pair, e.g. group.label=c("MZ", "DZ").
+#' Otherwise lavaan may mix up the twin pair correlations based on the order of entry
+#' in the data.
+#' 
+#' It is assumed that measurements in the data are suffixed by "_1" and "_2"
+#' 
+#' @param measures A named list. Measurements as names, values are list of variables to use in regressions list(meas_1=list('1, 'sex'), meas_2=list('1','sex'), meas_3=list('1','sex'))
+#' @param labels A list of labels for each measurement, eg list('phenoA', 'phenoB', 'phenoC')
+#' @param model A list of variance components to include, eg list(A, C=0, E=1) supresses the C component.
 triCorrFacLavMod <- function (measures, labels, model=list(A=1,C=1,E=1)) {
   mod <- '
   # Regressions
@@ -119,13 +138,14 @@ triCorrFacLavMod <- function (measures, labels, model=list(A=1,C=1,E=1)) {
   A1_{L3} ~~ c(1, 0.5)*A2_{L3}         # The correlation between twins is 1 in MZ and .5 in DZ
   
   # Correlation A1_S <-> A2_Att
-  # Cross twin cross trait
+  ### Cross twin cross trait
   A1_{L1} ~~ c(1*rA_{L1}_{L3}, 0.5*rA_{L1}_{L3})*A2_{L3}
   A1_{L1} ~~ c(1*rA_{L1}_{L2}, 0.5*rA_{L1}_{L2})*A2_{L2}
   A1_{L2} ~~ c(1*rA_{L2}_{L3}, 0.5*rA_{L2}_{L3})*A2_{L3}
   A1_{L2} ~~ c(1*rA_{L1}_{L2}, 0.5*rA_{L1}_{L2})*A2_{L1}
   A1_{L3} ~~ c(1*rA_{L2}_{L3}, 0.5*rA_{L2}_{L3})*A2_{L2}
   A1_{L3} ~~ c(1*rA_{L1}_{L3}, 0.5*rA_{L1}_{L3})*A2_{L1}
+  
   ### Cross trait
   # Twin 1
   A1_{L3} ~~ c(rA_{L2}_{L3}, rA_{L2}_{L3})*A1_{L2}

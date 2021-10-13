@@ -1,4 +1,7 @@
-# Get one of the ACE matrixes
+#' Get one of the ACE matrixes from a fitted model in lavaan.
+#' @param ft The fitted model
+#' @param measures The names of the measurments
+#' @param factor Which component to include.
 getMat <- function (ft, measures, factor='A') {
   fitm <- parameterTable(ft)
   mat <- paste0(factor,'_')
@@ -14,7 +17,11 @@ getMat <- function (ft, measures, factor='A') {
   return(mtrx)
 }
 
-# Get the variance explained
+#' Get the variance explained
+#' 
+#' @param ft The fitted lavaan model.
+#' @param measures A list of the measurement names.
+#' @param factor The factor to extract.
 getVarExp <- function (ft, measures, factor='A') {
   mat <- getMat(ft, measures, factor)
   mat <-  mat %*% t(mat)
@@ -28,9 +35,11 @@ getVarExp <- function (ft, measures, factor='A') {
   return(mat)
 }
 
-### TEST ORDER
-# Pass measurements in an indexed list, variable names as indexes and regressions as values, eg:
-# list(var1="c(int,int)*1 + ...", var2="c(int,int)*1 + ...", var3="c(int,int)*1 + ...")
+#' Trivariate cholesky model
+#' Pass measurements in an indexed list, variable names as indexes and regressions as values, eg:
+#' list(var1="c(int,int)*1 + ...", var2="c(int,int)*1 + ...", var3="c(int,int)*1 + ...")
+#' 
+#' @param measures The list of measurements and regressions.
 trivCholLavMod <- function (measures) {
   chol <- '
   # Regressions
