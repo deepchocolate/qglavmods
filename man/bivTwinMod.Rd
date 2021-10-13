@@ -2,7 +2,12 @@
 % Please edit documentation in R/bivtwinmod.R
 \name{bivTwinMod}
 \alias{bivTwinMod}
-\title{Generate syntax for a bivariate twin model}
+\title{Generate lavaan syntax for a bivariate twin model.
+The expected data structure is a wide format over twin pairs.
+When running lavaan, the option group.label should be used
+to indicate the value of MZ and then the DZ pair, e.g. group.label=c("MZ", "DZ").
+Otherwise lavaan may mix up the twin pair correlations based on the order of entry
+in the data.}
 \usage{
 bivTwinMod(
   measT1,
@@ -12,14 +17,19 @@ bivTwinMod(
 )
 }
 \arguments{
-\item{measT1}{A list of variable name and a designated label eg label(varName1="label1") for measure 1.}
+\item{measT1}{A list of variable name and a designated label eg label(varName1="label1", varName2="label2") for twin 1.}
 
-\item{measT2}{A list of variable name and a designated label eg label(varName1="label2") for measure 2.}
+\item{measT2}{A list of variable name and a designated label eg label(varName1="label1", varName2="label2") for twin 2.}
 
 \item{regressions}{A list of lists for the regressions for measT1 and measT1.}
 
 \item{model}{A list of variance components (A,C,D,E) and labels, eg list(A='a',C='c',E='e').}
 }
 \description{
-Generate syntax for a bivariate twin model
+Generate lavaan syntax for a bivariate twin model.
+The expected data structure is a wide format over twin pairs.
+When running lavaan, the option group.label should be used
+to indicate the value of MZ and then the DZ pair, e.g. group.label=c("MZ", "DZ").
+Otherwise lavaan may mix up the twin pair correlations based on the order of entry
+in the data.
 }

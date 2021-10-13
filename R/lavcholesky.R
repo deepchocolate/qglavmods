@@ -165,24 +165,3 @@ trivCholLavMod <- function (measures) {
   chol <- gsub(x=chol, pattern = '\\{M3\\}',replacement = m3)
   return(chol)
 }
-
-
-meas <- list(stdGPA='c(int2,int2)*1 + c(fem2,fem2)*female_1 + c(fem2,fem2)*female_2',
-             stdAdh='c(int1,int1)*1 + c(fem1,fem1)*female_1 + c(fem1,fem1)*female_2',
-             stdmUmp='c(int3,int3)*1 + c(fem3,fem3)*female_1 + c(fem3,fem3)*female_2')
-meas <- list(adh='c(int1,int1)*1 + c(fem1,fem1)*female_1 + c(fem1,fem1)*female_2',
-             GPA='c(int2,int2)*1 + c(fem2,fem2)*female_1 + c(fem2,fem2)*female_2',
-             mUmp='c(int3,int3)*1 + c(fem3,fem3)*female_1 + c(fem3,fem3)*female_2')
-ft3 <- lavaan(trivCholLavMod(meas),data=subset(studentsWide,!is.na(zyg) & Y_1<=2010 & Y_2<=2010),group='zyg',group.label=c('DZ','MZ'),
-              missing='listwise',information='observed',std.lv=T,std.ov=F)
-summary(ft3,standardized=T)
-getMat(ft3, c('stdAdh','stdGPA','stdmUmp'), factor='A')
-getVarExp(ft3, c('stdAdh','stdGPA','stdmUmp'),factor='A')
-
-meas <- list(stdGPA='c(fem2,fem2)*female_1 + c(fem2,fem2)*female_2',
-             stdAdh='c(fem1,fem1)*female_1 + c(fem1,fem1)*female_2',
-             stdmUmp='c(fem3,fem3)*female_1 + c(fem3,fem3)*female_2 + c(y1,y1)*year_1 + c(y1,y1)*year_2')
-ft3 <- lavaan(trivCholLavMod(meas),data=subset(studentsWide,!is.na(zyg)),group='zyg',group.label=c('DZ','MZ'),
-              missing='listwise',information='observed',std.lv=T,std.ov=F)
-getMat(ft3, c('stdGPA','stdAdh','stdmUmp'))
-getVarExp(ft3, c('stdGPA','stdAdh','stdmUmp'))
