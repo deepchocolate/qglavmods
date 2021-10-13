@@ -3,7 +3,8 @@
 \name{triCorrFacLavMod}
 \alias{triCorrFacLavMod}
 \title{Generate lavaan syntax for a correlated factors solution of a trivariate
-twin model. #' When running lavaan, the option group.label should be used
+twin model. 
+When running lavaan, the option group.label should be used
 to indicate the value of MZ and then the DZ pair, e.g. group.label=c("MZ", "DZ").
 Otherwise lavaan may mix up the twin pair correlations based on the order of entry
 in the data.}
