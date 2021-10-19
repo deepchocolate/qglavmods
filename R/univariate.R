@@ -72,19 +72,19 @@ setMethod('latentFactors', signature('Univariate'),
               lats <- suffixedLatent(object, 'A')
               A <- paste(paste0(lats, rep(' =~ ', 2), rep(labs, 2), ms), collapse='\n')
               A <- paste0(A, '\n', getCovariance(object, 'A', lats), collapse='\n')
-              defs <- paste0(defs, 'a2_share := ', f2Lab[['A']],'^2/', totVar, '\n')
+              defs <- paste0(defs, 'a2_', getMeasure(object),'_share := ', f2Lab[['A']],'^2/', totVar, '\n')
             }
             if ('C' %in% facs) {
               labs <- paste0('c(', f2Lab[['C']],', ',f2Lab[['C']],')*')
               lats <- suffixedLatent(object, 'C')
               C <- paste(paste0(lats, rep(' =~ ', 2), rep(labs, 2), ms), collapse='\n')
               C <- paste(C, getCovariance(object, 'C', lats), collapse='\n', sep='\n')
-              defs <- paste0(defs, 'c2_share := ', f2Lab[['C']],'^2/', totVar, '\n')
+              defs <- paste0(defs, 'c2_', getMeasure(object),'_share := ', f2Lab[['C']],'^2/', totVar, '\n')
             }
             if ('E' %in% facs) {
               labs <- paste0(' ~~ c(', f2Lab[['E']],', ',f2Lab[['E']],')*')
               E <- paste(paste0(ms, rep(labs, 2), ms), collapse='\n')
-              defs <- paste0(defs, 'e2_share := ', f2Lab[['E']],'/', totVar, '\n')
+              defs <- paste0(defs, 'e2', getMeasure(object),'_share := ', f2Lab[['E']],'/', totVar, '\n')
             }
             paste(A, C, E, defs, collapse='\n', sep='\n')
           })
