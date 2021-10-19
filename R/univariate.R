@@ -32,7 +32,7 @@ setMethod('initialize', 'twinModel',
 setGeneric('getMeasure', function (object) standardGeneric('getMeasure'))
 setMethod('getMeasure', signature('Univariate'),
           function (object) {
-            object@regressions[[2]]
+            object@measure
           })
 #' Set parameter labels
 #' 
