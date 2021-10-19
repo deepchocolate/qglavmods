@@ -91,11 +91,11 @@ setMethod('latentFactors', signature('Univariate'),
 
 setMethod('objectToChar', signature('Univariate'),
           function (object) {
-            regs <- ''
-            if (length(object@regressions) > 0) {
+            #regs <- ''
+            #if (length(object@regressions) > 0) {
               regs <- suffixFormula(object)
               regs <- paste(regs, collapse="\n")
-            }
+            #}
             latents <- latentFactors(object)
             out <- paste0(regs, '\n', latents)
             out
