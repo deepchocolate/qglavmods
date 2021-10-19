@@ -16,7 +16,7 @@ setClass('twinModel', prototype=list())
 setGeneric('suffixedMeasures', function (object) standardGeneric('suffixedMeasures'))
 setMethod('suffixedMeasures', signature('twinModel'),
           function (object) {
-            paste0(object@regressions[[2]], object@suffix)
+            paste0(object@measure, object@suffix)
           })
 setGeneric('suffixFormula', function (object) standardGeneric('suffixFormula'))
 setMethod('suffixFormula', signature('twinModel'),
@@ -81,7 +81,14 @@ setGeneric('regress', function (object, reg) standardGeneric('regress'))
 setMethod('regress', signature('twinModel', 'formula'),
           function (object, reg) {
             object@regressions <- reg
-            return(object)
+            object@measure <- as.character(reg[[2]])
+            object
+          })
+setGeneric('removeRegressions', function (object) standardGeneric('removeRegressions'))
+setMethod('removeRegressions', signature('twinModel'),
+          function (object) {
+            object@regressions <- formula()
+            object
           })
 #' Set the suffix for measurments in twin and co-twin
 #' @param t1 Measurement suffix for twin 1

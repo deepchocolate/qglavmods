@@ -14,6 +14,7 @@ univTwinModel <- function () {
 #' @export
 setClass('Univariate', contains='twinModel', 
          slots=list(
+           measure = 'character',
            factors = 'list',
            regressions = 'formula',
            suffix = 'vector',
@@ -22,6 +23,7 @@ setClass('Univariate', contains='twinModel',
 setMethod('initialize', 'twinModel',
           function (.Object) {
             .Object@factors = list(A='a', C='c',E='e')
+            .Object@regressions = formula()
             .Object@suffix = c('_1', '_2')
             .Object@latentSuffix = c('_1', '_2')
             callNextMethod(.Object)
@@ -89,8 +91,11 @@ setMethod('latentFactors', signature('Univariate'),
 
 setMethod('objectToChar', signature('Univariate'),
           function (object) {
-            regs <- suffixFormula(object)
-            regs <- paste(regs, collapse="\n")
+            regs <- ''
+            if (length(object@regressions) > 0) {
+              regs <- suffixFormula(object)
+              regs <- paste(regs, collapse="\n")
+            }
             latents <- latentFactors(object)
             out <- paste0(regs, '\n', latents)
             out
