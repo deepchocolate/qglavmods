@@ -17,3 +17,8 @@ Collate:
   twinmodel.R
   univariate.R
   bivariate.R
+  bivtwinmod.R
+  choleskymod.R
+  lavcholesky.R
+  lavcorrfactors.R
+  univtwinmod.R
