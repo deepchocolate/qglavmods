@@ -1,0 +1,5 @@
+To use testhat, simply issue
+ usethis::testthat()
+from the console. Place tests in tests/testthat/ and run
+ devtools::test()
+to run tests.

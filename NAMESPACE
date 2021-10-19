@@ -2,6 +2,13 @@
 
 export(bivCorrFacLavMod)
 export(bivTwinMod)
+export(bivTwinModel)
 export(choleskyMod)
+export(regress)
+export(setSuffix)
 export(triCorrFacLavMod)
+export(twinModel)
 export(univTwinMod)
+export(univTwinModel)
+exportClasses(Univariate)
+exportClasses(twinModel)
