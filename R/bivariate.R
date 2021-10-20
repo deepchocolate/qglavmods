@@ -26,6 +26,9 @@ setMethod('initialize', 'Bivariate',
             .Object@constraints = list()
             callNextMethod(.Object)
           })
+
+#' Add a constraint to the model
+#' @export
 setGeneric('addConstraint', function (object, param, rhs) standardGeneric('addConstraint'))
 setMethod('addConstraint', signature('Bivariate', 'character', 'character'),
           function (object, param, rhs) {
