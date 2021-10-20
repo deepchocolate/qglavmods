@@ -126,14 +126,21 @@ setMethod('getDefinitions', signature('Bivariate', 'Univariate', 'Univariate'),
               prmComp <- paste0('e_', meas, '_share ')
               def <- paste0(def, prmComp, ' := ', obj@factors[['E']], '/' , prmVar, '\n')
             }
+            rA <- getCorrParamLabel(object, 'A', objA, objB)
+            rC <- getCorrParamLabel(object, 'C', objA, objB)
+            rE <- getCorrParamLabel(object, 'E', objA, objB)
+            # ACE correlations
+            # With the exception of rE these are just defined to reduce the no of estimates
+            def <- paste0(def, 'corr_A := ', rA, '\n')
+            def <- paste0(def, 'corr_C := ', rC, '\n')
+            # Within this framework rE is covariance and has to be converted to a correlation
+            def <- paste0(def, 'corr_E := ', rE, '/(sqrt(', objA@factors[['E']], '), sqrt(', objB@factors[['E']],'))\n')
+            # Contributions to phenotypic correlations
             m1 <- getMeasure(objA)
             m2 <- getMeasure(objB)
-            rA <- getCorrParamLabel(object, 'A', objA, objB)
-            def <- paste0(def, 'contr_A := ', rA, '*sqrt(a_', m1, '_share', ')*sqrt(a_', m2, '_share)\n')
-            rC <- getCorrParamLabel(object, 'C', objA, objB)
-            def <- paste0(def, 'contr_C := ', rC, '*sqrt(c_', m1, '_share', ')*sqrt(c_', m2, '_share)\n')
-            rE <- getCorrParamLabel(object, 'E', objA, objB)
-            def <- paste0(def, 'contr_E := ', rE, '*sqrt(e_', m1, '_share', ')*sqrt(e_', m2, '_share)\n')
+            def <- paste0(def, 'contr_A := corr_A*sqrt(a_', m1, '_share', ')*sqrt(a_', m2, '_share)\n')
+            def <- paste0(def, 'contr_C := corr_C*sqrt(c_', m1, '_share', ')*sqrt(c_', m2, '_share)\n')
+            def <- paste0(def, 'contr_E := corr_E*sqrt(e_', m1, '_share', ')*sqrt(e_', m2, '_share)\n')
             def <- paste0(def, 'pheno := contr_A + contr_C + contr_E\n')
             def <- paste0(def, 'contr_A_share := contr_A/pheno\n')
             def <- paste0(def, 'contr_C_share := contr_C/pheno\n')
