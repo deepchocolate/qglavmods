@@ -14,7 +14,8 @@ setClass('Bivariate', contains='Univariate',
          representation = list(
            mod1 = "Univariate",
            mod2 = "Univariate",
-           corrParamPrefix = 'list'
+           corrParamPrefix = 'list',
+           constraints = 'list'
            ))
 # Constructor
 setMethod('initialize', 'Bivariate',
@@ -22,7 +23,14 @@ setMethod('initialize', 'Bivariate',
             .Object@mod1 = mod1
             .Object@mod2 = mod2
             .Object@corrParamPrefix = list(A='rA', C='rC', E='rE')
+            .Object@constraints = list()
             callNextMethod(.Object)
+          })
+setGeneric('addConstraint', function (object, param, rhs) standardGeneric('addConstraint'))
+setMethod('addConstraint', signature('Bivariate', 'character', 'character'),
+          function (object, param, rhs) {
+            object@constraints[[param]] = rhs
+            object
           })
 "### Cross-twin cross-trait correlations
 A_{L1}_1 ~~ c(rA_{L1}_{L2}, rA_{L1}_{L2}_2)*A_{L2}_2
@@ -162,6 +170,10 @@ setMethod('objectToChar', signature('Bivariate'),
             defs <- getDefinitions(object, m1, m2)
             m1 <- objectToChar(m1)
             m2 <- objectToChar(m2)
-            out <- paste0(m1, m2, crs, defs, collapse='\n\n')
+            cnstrnts <- ''
+            for (cnstr in names(object@constraints)) {
+              cnstrnts <- paste0(cnstrnts, cnstr, object@constraints[[cnstr]], '\n')
+            }
+            out <- paste0(m1, m2, crs, defs, cnstrnts, collapse='\n\n')
             out
           })
