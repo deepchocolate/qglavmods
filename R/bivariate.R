@@ -134,7 +134,7 @@ setMethod('getDefinitions', signature('Bivariate', 'Univariate', 'Univariate'),
             def <- paste0(def, 'corr_A := ', rA, '\n')
             def <- paste0(def, 'corr_C := ', rC, '\n')
             # Within this framework rE is covariance and has to be converted to a correlation
-            def <- paste0(def, 'corr_E := ', rE, '/(sqrt(', objA@factors[['E']], '), sqrt(', objB@factors[['E']],'))\n')
+            def <- paste0(def, 'corr_E := ', rE, '/(sqrt(', objA@factors[['E']], ')*sqrt(', objB@factors[['E']],'))\n')
             # Contributions to phenotypic correlations
             m1 <- getMeasure(objA)
             m2 <- getMeasure(objB)
