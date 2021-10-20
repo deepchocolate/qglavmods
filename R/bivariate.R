@@ -74,8 +74,8 @@ setMethod('getLatentCorrelations', signature('Bivariate', 'Univariate', 'Univari
             # Cross trait
             meas1 <- suffixedMeasures(objA)
             meas2 <- suffixedMeasures(objB)
-            out <- paste0(out, meas1[1], ' ~~ ', parm, meas2[2], '\n')
-            out <- paste0(out, meas1[2], ' ~~ ', parm, meas2[1], '\n')
+            out <- paste0(out, meas1[1], ' ~~ ', parm, meas2[1], '\n')
+            out <- paste0(out, meas1[2], ' ~~ ', parm, meas2[2], '\n')
             out
           })
 setGeneric('getDefinitions', function (object, objA, objB) standardGeneric('getDefinitions'))
