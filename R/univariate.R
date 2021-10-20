@@ -84,18 +84,15 @@ setMethod('latentFactors', signature('Univariate'),
             if ('E' %in% facs) {
               labs <- paste0(' ~~ c(', f2Lab[['E']],', ',f2Lab[['E']],')*')
               E <- paste(paste0(ms, rep(labs, 2), ms), collapse='\n')
-              defs <- paste0(defs, 'e2', getMeasure(object),'_share := ', f2Lab[['E']],'/', totVar, '\n')
+              defs <- paste0(defs, 'e2_', getMeasure(object),'_share := ', f2Lab[['E']],'/', totVar, '\n')
             }
             paste(A, C, E, defs, collapse='\n', sep='\n')
           })
 
 setMethod('objectToChar', signature('Univariate'),
           function (object) {
-            #regs <- ''
-            #if (length(object@regressions) > 0) {
-              regs <- suffixFormula(object)
-              regs <- paste(regs, collapse="\n")
-            #}
+            regs <- suffixFormula(object)
+            regs <- paste(regs, collapse="\n")
             latents <- latentFactors(object)
             out <- paste0(regs, '\n', latents)
             out
