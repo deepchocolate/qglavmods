@@ -82,7 +82,7 @@ bivCorrFacLavMod <- function (measures, labels, model=list(A=1,C=1,E=1)) {
   contr_A := rA_{L1}_{L2}*sqrt(a_{L1}_share)*sqrt(a_{L2}_share)
   contr_C := rC_{L1}_{L2}*sqrt(c_{L1}_share)*sqrt(c_{L2}_share)
   contr_E := rE_{L1}_{L2}*sqrt(e_{L1}_share)*sqrt(e_{L2}_share)
-  pheno := contr_A + contr_E
+  pheno := contr_A + contr_C + contr_E
   contr_A_share := contr_A/pheno
   contr_C_share := contr_C/pheno
   contr_E_share := contr_E/pheno'
