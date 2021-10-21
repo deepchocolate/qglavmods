@@ -8,7 +8,7 @@ Current limitations:
 - Only supporting ACE versions
 - Identification only through standardization of latent variables
 ## Usage
-`
+```
 # Install package
 devtools::install_github('deepchocolate/qglavmods')
 library(qglavmods)
@@ -25,4 +25,4 @@ fitB < lavaan(as.character(modB), data=dataInWideFromat, gropu='zygocityColumn',
 # Now do a bivariate version
 modAB <- bivTwinModel(modA, modB)
 fitAB < lavaan(as.character(modAB), data=dataInWideFromat, gropu='zygocityColumn', group.label=c('MZ','DZ'), std.lv=T)
-`
+```
