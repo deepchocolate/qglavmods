@@ -16,14 +16,14 @@ setClass('Univariate', contains='twinModel',
          slots=list(
            measure = 'character',
            factors = 'list',
-           regression = 'formula',
+           regressions = 'formula',
            suffix = 'vector',
            latentSuffix='vector'
            ))
 setMethod('initialize', 'twinModel',
           function (.Object) {
             .Object@factors = list(A='a', C='c',E='e')
-            .Object@regression = formula()
+            .Object@regressions = formula()
             .Object@suffix = c('_1', '_2')
             .Object@latentSuffix = c('_1', '_2')
             callNextMethod(.Object)
@@ -104,8 +104,8 @@ setMethod('getDefinitions', signature('Univariate'),
             defs
           })
 
-setGeneric('getRegression', function (object) standardGeneric('getRegression'))
-setMethod('getRegression', signature('Univariate'),
+setGeneric('getRegressions', function (object) standardGeneric('getRegressions'))
+setMethod('getRegressions', signature('Univariate'),
           function (object) {
             regs <- suffixFormula(object)
             paste0(paste(regs, collapse="\n"), '\n')
@@ -113,7 +113,7 @@ setMethod('getRegression', signature('Univariate'),
 
 setMethod('objectToChar', signature('Univariate'),
           function (object) {
-            regs <- getRegression(object)
+            regs <- getRegressions(object)
             latents <- paste0(latentFactors(object), '\n')
             defs <- getDefinitions(object)
             paste0(regs, latents, defs, collapse='\n')
@@ -125,25 +125,25 @@ setMethod('objectToChar', signature('Univariate'),
 setGeneric('regress', function (object, reg) standardGeneric('regress'))
 setMethod('regress', signature('twinModel', 'formula'),
           function (object, reg) {
-            object@regression <- reg
+            object@regressions <- reg
             object@measure <- as.character(reg[[2]])
             object
           })
-setGeneric('removeRegression', function (object) standardGeneric('removeRegression'))
-setMethod('removeRegression', signature('Univariate'),
+setGeneric('removeRegressions', function (object) standardGeneric('removeRegressions'))
+setMethod('removeRegressions', signature('Univariate'),
           function (object) {
-            object@regression <- formula()
+            object@regressions <- formula()
             object
           })
 setGeneric('suffixFormula', function (object) standardGeneric('suffixFormula'))
 setMethod('suffixFormula', signature('Univariate'),
           function (object) {
             ms <- suffixedMeasures(object)
-            regs <- object@regression
+            regs <- object@regressions
             op <- c()
             tmp <- as.character(regs)
-            for (i in length(ms)) {
-              op <- c(op, paste0(ms[i], ' ~ ', tmp[[3]]))
+            for (m in ms) {
+              op <- c(op, paste0(m, ' ~ ', tmp[[3]]))
             }
             op
           })
