@@ -16,14 +16,14 @@ setClass('Univariate', contains='twinModel',
          slots=list(
            measure = 'character',
            factors = 'list',
-           regressions = 'formula',
+           regression = 'formula',
            suffix = 'vector',
            latentSuffix='vector'
            ))
 setMethod('initialize', 'twinModel',
           function (.Object) {
             .Object@factors = list(A='a', C='c',E='e')
-            .Object@regressions = formula()
+            .Object@regression = formula()
             .Object@suffix = c('_1', '_2')
             .Object@latentSuffix = c('_1', '_2')
             callNextMethod(.Object)
@@ -65,35 +65,85 @@ setMethod('latentFactors', signature('Univariate'),
             ms <- suffixedMeasures(object)
             facs <- getLatentFactors(object)
             f2Lab <- object@factors
-            defs <- ''
-            totVar <- paste0('(', paste(unlist(f2Lab, use.names=F), collapse = '^2 + '), ')')
             if ('A' %in% facs) {
               labs <- paste0('c(', f2Lab[['A']],', ',f2Lab[['A']],')*')
               lats <- suffixedLatent(object, 'A')
               A <- paste(paste0(lats, rep(' =~ ', 2), rep(labs, 2), ms), collapse='\n')
               A <- paste0(A, '\n', getCovariance(object, 'A', lats), collapse='\n')
-              defs <- paste0(defs, 'a2_', getMeasure(object),'_share := ', f2Lab[['A']],'^2/', totVar, '\n')
             }
             if ('C' %in% facs) {
               labs <- paste0('c(', f2Lab[['C']],', ',f2Lab[['C']],')*')
               lats <- suffixedLatent(object, 'C')
               C <- paste(paste0(lats, rep(' =~ ', 2), rep(labs, 2), ms), collapse='\n')
               C <- paste(C, getCovariance(object, 'C', lats), collapse='\n', sep='\n')
-              defs <- paste0(defs, 'c2_', getMeasure(object),'_share := ', f2Lab[['C']],'^2/', totVar, '\n')
             }
             if ('E' %in% facs) {
               labs <- paste0(' ~~ c(', f2Lab[['E']],', ',f2Lab[['E']],')*')
               E <- paste(paste0(ms, rep(labs, 2), ms), collapse='\n')
-              defs <- paste0(defs, 'e2_', getMeasure(object),'_share := ', f2Lab[['E']],'/', totVar, '\n')
             }
-            paste(A, C, E, defs, collapse='\n', sep='\n')
+            paste(A, C, E, collapse='\n', sep='\n')
+          })
+
+
+setMethod('getDefinitions', signature('Univariate'),
+          function (object) {
+            defs <- ''
+            facs <- getLatentFactors(object)
+            f2Lab <- object@factors
+            totVar <- paste0('(', paste(unlist(f2Lab, use.names=F), collapse = '^2 + '), ')')
+            defs <- paste0(defs, 'V_', getMeasure(object), ' := ', totVar, '\n')
+            if ('A' %in% facs) {
+              defs <- paste0(defs, 'A_', getMeasure(object),'_share := ', f2Lab[['A']],'^2/V_', getMeasure(object), '\n')
+            }
+            if ('C' %in% facs) {
+              defs <- paste0(defs, 'C_', getMeasure(object),'_share := ', f2Lab[['C']],'^2/V_', getMeasure(object), '\n')
+            }
+            if ('E' %in% facs) {
+              defs <- paste0(defs, 'E_', getMeasure(object),'_share := ', f2Lab[['E']],'/V_', getMeasure(object), '\n')
+            }
+            defs
+          })
+
+setGeneric('getRegression', function (object) standardGeneric('getRegression'))
+setMethod('getRegression', signature('Univariate'),
+          function (object) {
+            regs <- suffixFormula(object)
+            paste0(paste(regs, collapse="\n"), '\n')
           })
 
 setMethod('objectToChar', signature('Univariate'),
           function (object) {
-            regs <- suffixFormula(object)
-            regs <- paste(regs, collapse="\n")
-            latents <- latentFactors(object)
-            out <- paste0(regs, '\n', latents)
-            out
+            regs <- getRegression(object)
+            latents <- paste0(latentFactors(object), '\n')
+            defs <- getDefinitions(object)
+            paste0(regs, latents, defs, collapse='\n')
+          })
+
+#' Add regression to the twin model
+#' @param reg A regression formula for a measurement without suffix for measurements in twin and co-twin.
+#' @export
+setGeneric('regress', function (object, reg) standardGeneric('regress'))
+setMethod('regress', signature('twinModel', 'formula'),
+          function (object, reg) {
+            object@regression <- reg
+            object@measure <- as.character(reg[[2]])
+            object
+          })
+setGeneric('removeRegression', function (object) standardGeneric('removeRegression'))
+setMethod('removeRegression', signature('Univariate'),
+          function (object) {
+            object@regression <- formula()
+            object
+          })
+setGeneric('suffixFormula', function (object) standardGeneric('suffixFormula'))
+setMethod('suffixFormula', signature('Univariate'),
+          function (object) {
+            ms <- suffixedMeasures(object)
+            regs <- object@regression
+            op <- c()
+            tmp <- as.character(regs)
+            for (i in length(ms)) {
+              op <- c(op, paste0(ms[i], ' ~ ', tmp[[3]]))
+            }
+            op
           })

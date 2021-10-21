@@ -18,15 +18,6 @@ setMethod('suffixedMeasures', signature('twinModel'),
           function (object) {
             paste0(object@measure, object@suffix)
           })
-setGeneric('suffixFormula', function (object) standardGeneric('suffixFormula'))
-setMethod('suffixFormula', signature('twinModel'),
-          function (object) {
-            ms <- suffixedMeasures(object)
-            regs <- object@regressions
-            r1 <- update(regs, paste0(ms[1], '~.'))
-            r2 <- update(regs, paste0(ms[2], '~.'))
-            c(r1, r2)
-          })
 
 # Get the covariance structure
 setGeneric('getCovariance', function (object, factor, latents) standardGeneric('getCovariance'))
@@ -43,7 +34,7 @@ setMethod('getCovariance', signature('twinModel', 'character'),
 setGeneric('latentFactors', function (object) standardGeneric('latentFactors'))
 # Method to convert object to character lavaan syntax
 setGeneric('objectToChar', function (object) standardGeneric('objectToChar'))
-
+setGeneric('getDefinitions', function (object) standardGeneric('getDefinitions'))
 
 ### Public methods
 #' Get latent factors (ACDE)
@@ -71,24 +62,6 @@ setGeneric('getParameterLabels', function (object) standardGeneric('getParameter
 setMethod('getParameterLabels', signature('twinModel'),
           function (object) {
             unlist(object@factors, use.names = F)
-          })
-
-
-#' Add regression to the twin model
-#' @param reg A regression formula for a measurement without suffix for measurements in twin and co-twin.
-#' @export
-setGeneric('regress', function (object, reg) standardGeneric('regress'))
-setMethod('regress', signature('twinModel', 'formula'),
-          function (object, reg) {
-            object@regressions <- reg
-            object@measure <- as.character(reg[[2]])
-            object
-          })
-setGeneric('removeRegressions', function (object) standardGeneric('removeRegressions'))
-setMethod('removeRegressions', signature('twinModel'),
-          function (object) {
-            object@regressions <- formula()
-            object
           })
 #' Set the suffix for measurments in twin and co-twin
 #' @param t1 Measurement suffix for twin 1
