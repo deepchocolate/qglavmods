@@ -137,14 +137,6 @@ setMethod('getCorrParamLabel', signature('Bivariate', 'character'),
 
 setMethod('objectToChar', signature('Bivariate'),
           function (object) {
-            #m1meas <- getMeasure(object@mod1)
-            #m2meas <- getMeasure(object@mod2)
-            #m1 <- setParameterLabels(object@mod1, A=paste0('a_',m1meas), C=paste0('c_', m1meas), E=paste0('e_', m1meas))
-            #suf <- paste0(m1meas, object@latentSuffix)
-            #m1 <- setLatentSuffix(m1, suf)
-            #m2 <- setParameterLabels(object@mod2, A=paste0('a_',m2meas), C=paste0('c_', m2meas), E=paste0('e_', m2meas))
-            #suf <- paste0(m2meas, object@latentSuffix)
-            #m2 <- setLatentSuffix(m2, suf)
             crs <- getLatentCorrelations(object, object@mod1, object@mod2)
             r1 <- getRegressions(object@mod1)
             r2 <- getRegressions(object@mod2)

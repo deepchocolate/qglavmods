@@ -74,11 +74,6 @@ setMethod('setSuffix', signature('twinModel'),
             return(object)
           })
 
-#setMethod('show', signature('twinModel'),
-#          function (object) {
-#            op <- objectToChar(object)
-#            cat(op)
-#          })
 setMethod('as.character', signature('twinModel'),
           function (x) {
             objectToChar(x);
