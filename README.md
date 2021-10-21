@@ -1,4 +1,4 @@
-# Quantitative Genetic LAVaan Models
+# Quantitative Genetic LAVaan MODelS
 `qglavmods` is an R-package to generate syntax for quantitative genetic
 twin models.
 
