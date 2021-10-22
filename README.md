@@ -1,8 +1,8 @@
 # Quantitative Genetic LAVaan MODelS
 `qglavmods` is an R-package to generate syntax for quantitative genetic
-twin models.
+twin models for the structural equation modeling R-package `lavaan`.
 
-Currently only ACE forms of univariate and bivariate models using the correlated factors solusion is supported
+Currently only ACE forms of univariate and bivariate models using the correlated factors solution is supported
 Current limitations:
 - Binary/categorical outcomes are treated as continuous
 - Only supporting ACE versions

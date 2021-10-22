@@ -34,6 +34,54 @@ setMethod('getMeasure', signature('Univariate'),
           function (object) {
             object@measure
           })
+
+### Public methods
+#' Get latent factors (ACDE)
+#' 
+#' @param object An object of class twinModel
+#' @export
+setGeneric('getLatentFactors', function (object) standardGeneric('getLatentFactors'))
+setMethod('getLatentFactors', signature('Univariate'),
+          function (object) {
+            names(object@factors)
+          })
+#' Set latent factors (ACDE)
+#' 
+#' @param ... Each factor specified as factor=label, eg A='a'
+#' @export
+setGeneric('setLatentFactors', function (object, ...) standardGeneric('setLatentFactors'))
+setMethod('setLatentFactors', signature('Univariate'),
+          function (object, ...) {
+            object@factors <- list(...)
+            object
+          })
+
+setGeneric('setLatentSuffix', function (object, suffix) standardGeneric('setLatentSuffix'))
+setMethod('setLatentSuffix', signature('Univariate', 'vector'),
+          function (object, suffix) {
+            object@latentSuffix <- suffix
+            object
+          })
+
+setGeneric('suffixedLatent', function (object, factor) standardGeneric('suffixedLatent'))
+setMethod('suffixedLatent', signature('Univariate', 'character'),
+          function (object, factor) {
+            paste0(factor, object@latentSuffix)
+          })
+#' Get parameter labels
+#' 
+#' @param object An object of class twinModel
+setGeneric('getParameterLabels', function (object) standardGeneric('getParameterLabels'))
+setMethod('getParameterLabels', signature('Univariate'),
+          function (object) {
+            unlist(object@factors, use.names = F)
+          })
+setGeneric('getLatentParameterLabel', function (object, fac) standardGeneric('getLatentParameterLabel'))
+setMethod('getLatentParameterLabel', signature('Univariate', 'character'),
+          function (object, fac) {
+            if (!fac %in% getLatentFactors(object)) stop(paste0('Unknonw latent factor ', fac))
+            object@factors[[fac]]
+          })
 #' Set parameter labels
 #' 
 #' 
@@ -47,18 +95,6 @@ setMethod('setParameterLabels', signature('Univariate'),
             }
             object
           })
-setGeneric('setLatentSuffix', function (object, suffix) standardGeneric('setLatentSuffix'))
-setMethod('setLatentSuffix', signature('Univariate', 'vector'),
-          function (object, suffix) {
-            object@latentSuffix <- suffix
-            object
-          })
-
-setGeneric('suffixedLatent', function (object, factor) standardGeneric('suffixedLatent'))
-setMethod('suffixedLatent', signature('twinModel', 'character'),
-          function (object, factor) {
-            paste0(factor, object@latentSuffix)
-          })
 
 setMethod('latentFactors', signature('Univariate'),
           function (object) {
@@ -66,19 +102,22 @@ setMethod('latentFactors', signature('Univariate'),
             facs <- getLatentFactors(object)
             f2Lab <- object@factors
             if ('A' %in% facs) {
-              labs <- paste0('c(', f2Lab[['A']],', ',f2Lab[['A']],')*')
+              latParm <- getLatentParameterLabel(object, 'A')
+              labs <- paste0('c(', latParm,', ',latParm,')*')
               lats <- suffixedLatent(object, 'A')
               A <- paste(paste0(lats, rep(' =~ ', 2), rep(labs, 2), ms), collapse='\n')
               A <- paste0(A, '\n', getCovariance(object, 'A', lats), collapse='\n')
             }
             if ('C' %in% facs) {
-              labs <- paste0('c(', f2Lab[['C']],', ',f2Lab[['C']],')*')
+              latParm <- getLatentParameterLabel(object, 'C')
+              labs <- paste0('c(', latParm,', ',latParm,')*')
               lats <- suffixedLatent(object, 'C')
               C <- paste(paste0(lats, rep(' =~ ', 2), rep(labs, 2), ms), collapse='\n')
               C <- paste(C, getCovariance(object, 'C', lats), collapse='\n', sep='\n')
             }
             if ('E' %in% facs) {
-              labs <- paste0(' ~~ c(', f2Lab[['E']],', ',f2Lab[['E']],')*')
+              latParm <- getLatentParameterLabel(object, 'E')
+              labs <- paste0(' ~~ c(', latParm,', ',latParm,')*')
               E <- paste(paste0(ms, rep(labs, 2), ms), collapse='\n')
             }
             paste(A, C, E, collapse='\n', sep='\n')
@@ -92,14 +131,18 @@ setMethod('getDefinitions', signature('Univariate'),
             f2Lab <- object@factors
             totVar <- paste0('(', paste(unlist(f2Lab, use.names=F), collapse = '^2 + '), ')')
             defs <- paste0(defs, 'V_', getMeasure(object), ' := ', totVar, '\n')
-            if ('A' %in% facs) {
-              defs <- paste0(defs, 'A_', getMeasure(object),'_share := ', f2Lab[['A']],'^2/V_', getMeasure(object), '\n')
+            m <- getMeasure(object)
+            for (fac in c('A', 'C', 'D')) {
+              if (fac %in% facs) defs <- paste0(defs, fac, '_', m, '_share := ', getLatentParameterLabel(object, fac), '^2/V_', m, '\n')
             }
-            if ('C' %in% facs) {
-              defs <- paste0(defs, 'C_', getMeasure(object),'_share := ', f2Lab[['C']],'^2/V_', getMeasure(object), '\n')
-            }
+            #if ('A' %in% facs) {
+            #  defs <- paste0(defs, 'A_', getMeasure(object),'_share := ', f2Lab[['A']],'^2/V_', getMeasure(object), '\n')
+            #}
+            #if ('C' %in% facs) {
+            #  defs <- paste0(defs, 'C_', getMeasure(object),'_share := ', f2Lab[['C']],'^2/V_', getMeasure(object), '\n')
+            #}
             if ('E' %in% facs) {
-              defs <- paste0(defs, 'E_', getMeasure(object),'_share := ', f2Lab[['E']],'/V_', getMeasure(object), '\n')
+              defs <- paste0(defs, 'E_', m,'_share := ', getLatentParameterLabel(object, 'E'),'/V_', m, '\n')
             }
             defs
           })
@@ -113,7 +156,10 @@ setMethod('getRegressions', signature('Univariate'),
 
 setMethod('objectToChar', signature('Univariate'),
           function (object) {
-            regs <- getRegressions(object)
+            regs <- ''
+            if (length(object@regressions) > 0) {
+              regs <- getRegressions(object)
+            }
             latents <- paste0(latentFactors(object), '\n')
             defs <- getDefinitions(object)
             paste0(regs, latents, defs, collapse='\n')

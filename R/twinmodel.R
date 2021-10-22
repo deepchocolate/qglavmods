@@ -36,33 +36,7 @@ setGeneric('latentFactors', function (object) standardGeneric('latentFactors'))
 setGeneric('objectToChar', function (object) standardGeneric('objectToChar'))
 setGeneric('getDefinitions', function (object) standardGeneric('getDefinitions'))
 
-### Public methods
-#' Get latent factors (ACDE)
-#' 
-#' @param object An object of class twinModel
-setGeneric('getLatentFactors', function (object) standardGeneric('getLatentFactors'))
-setMethod('getLatentFactors', signature('twinModel'),
-          function (object) {
-            names(object@factors)
-          })
-#' Set latent factors (ACDE)
-#' 
-#' 
-setGeneric('setLatentFactors', function (object, ...) standardGeneric('setLatentFactors'))
-setMethod('setLatentFactors', signature('twinModel'),
-          function (object, ...) {
-            object@factors <- list(...)
-            object
-          })
 
-#' Get parameter labels
-#' 
-#' @param object An object of class twinModel
-setGeneric('getParameterLabels', function (object) standardGeneric('getParameterLabels'))
-setMethod('getParameterLabels', signature('twinModel'),
-          function (object) {
-            unlist(object@factors, use.names = F)
-          })
 #' Set the suffix for measurments in twin and co-twin
 #' @param t1 Measurement suffix for twin 1
 #' @param t2 Measurement suffix for twin 2

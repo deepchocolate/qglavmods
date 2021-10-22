@@ -103,7 +103,9 @@ setMethod('getDefinitions', signature('Bivariate'),
             def <- paste0(def, 'corr_A := ', rA, '\n')
             def <- paste0(def, 'corr_C := ', rC, '\n')
             # Within this framework rE is covariance and has to be converted to a correlation
-            def <- paste0(def, 'corr_E := ', rE, '/(sqrt(', object@mod1@factors[['E']], ')*sqrt(', object@mod2@factors[['E']],'))\n')
+            eLab1 <- getLatentParameterLabel(object@mod1, 'E')
+            eLab2 <- getLatentParameterLabel(object@mod2, 'E')
+            def <- paste0(def, 'corr_E := ', rE, '/(sqrt(', eLab1, ')*sqrt(', eLab2,'))\n')
             # Contributions to phenotypic correlations
             m1 <- getMeasure(object@mod1)
             m2 <- getMeasure(object@mod2)
