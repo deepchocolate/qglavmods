@@ -137,7 +137,11 @@ setMethod('getCorrParamLabel', signature('Bivariate', 'character'),
             prm
           })
 
-setMethod('objectToChar', signature('Bivariate'),
+#' Formulate the correlated factors model
+#' @param object The specified bivariate model.
+#' @export
+setGeneric("correlatedFactors", function (object) standardGeneric('correlatedFactors'))
+setMethod('correlatedFactors', signature('Bivariate'),
           function (object) {
             crs <- getLatentCorrelations(object, object@mod1, object@mod2)
             r1 <- getRegressions(object@mod1)

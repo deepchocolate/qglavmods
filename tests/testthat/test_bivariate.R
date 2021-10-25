@@ -1,0 +1,9 @@
+context('Bivariate ACE model')
+mod1 <- univTwinModel()
+mod1 <- regress(mod1, P~1)
+mod2 <- regress(mod1, PA~1)
+mod2 <- bivTwinModel(mod1, mod2)
+expected <- "P_1 ~ 1\nP_2 ~ 1\nPA_1 ~ 1\nPA_2 ~ 1\nAP_1 =~ c(a_P, a_P)*P_1\nAP_2 =~ c(a_P, a_P)*P_2\nAP_1 ~~ c(1, 0.5)*AP_2\nCP_1 =~ c(c_P, c_P)*P_1\nCP_2 =~ c(c_P, c_P)*P_2\nCP_1 ~~ c(1, 1)*CP_2\nP_1 ~~ c(e_P, e_P)*P_1\nP_2 ~~ c(e_P, e_P)*P_2\nAPA_1 =~ c(a_PA, a_PA)*PA_1\nAPA_2 =~ c(a_PA, a_PA)*PA_2\nAPA_1 ~~ c(1, 0.5)*APA_2\nCPA_1 =~ c(c_PA, c_PA)*PA_1\nCPA_2 =~ c(c_PA, c_PA)*PA_2\nCPA_1 ~~ c(1, 1)*CPA_2\nPA_1 ~~ c(e_PA, e_PA)*PA_1\nPA_2 ~~ c(e_PA, e_PA)*PA_2\nAP_1 ~~ c(rA_P_PA, rA_P_PA_2)*APA_2\nAP_2 ~~ c(rA_P_PA, rA_P_PA_2)*APA_1\nrA_P_PA_2 == 0.5*rA_P_PA\nAP_1 ~~ c(rA_P_PA, rA_P_PA)*APA_1\nAP_2 ~~ c(rA_P_PA, rA_P_PA)*APA_2\nCP_1 ~~ c(rC_P_PA, rC_P_PA)*CPA_2\nCP_2 ~~ c(rC_P_PA, rC_P_PA)*CPA_1\nCP_1 ~~ c(rC_P_PA, rC_P_PA)*CPA_1\nCP_2 ~~ c(rC_P_PA, rC_P_PA)*CPA_2\nP_1 ~~ c(rE_P_PA, rE_P_PA)*PA_1\nP_2 ~~ c(rE_P_PA, rE_P_PA)*PA_2\nV_P := (a_P^2 + c_P^2 + e_P)\nA_P_share := a_P^2/V_P\nC_P_share := c_P^2/V_P\nE_P_share := e_P/V_P\nV_PA := (a_PA^2 + c_PA^2 + e_PA)\nA_PA_share := a_PA^2/V_PA\nC_PA_share := c_PA^2/V_PA\nE_PA_share := e_PA/V_PA\ncorr_A := rA_P_PA\ncorr_C := rC_P_PA\ncorr_E := rE_P_PA/(sqrt(e_P)*sqrt(e_PA))\ncontr_A := corr_A*sqrt(A_P_share)*sqrt(A_PA_share)\ncontr_C := corr_C*sqrt(C_P_share)*sqrt(C_PA_share)\ncontr_E := corr_E*sqrt(E_P_share)*sqrt(E_PA_share)\npheno := contr_A + contr_C + contr_E\ncontr_A_share := contr_A/pheno\ncontr_C_share := contr_C/pheno\ncontr_E_share := contr_E/pheno\n"
+test_that("Expected regression", {
+  expect_equal(correlatedFactors(mod2), expected)
+})

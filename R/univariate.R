@@ -135,16 +135,18 @@ setMethod('getDefinitions', signature('Univariate'),
             for (fac in c('A', 'C', 'D')) {
               if (fac %in% facs) defs <- paste0(defs, fac, '_', m, '_share := ', getLatentParameterLabel(object, fac), '^2/V_', m, '\n')
             }
-            #if ('A' %in% facs) {
-            #  defs <- paste0(defs, 'A_', getMeasure(object),'_share := ', f2Lab[['A']],'^2/V_', getMeasure(object), '\n')
-            #}
-            #if ('C' %in% facs) {
-            #  defs <- paste0(defs, 'C_', getMeasure(object),'_share := ', f2Lab[['C']],'^2/V_', getMeasure(object), '\n')
-            #}
             if ('E' %in% facs) {
               defs <- paste0(defs, 'E_', m,'_share := ', getLatentParameterLabel(object, 'E'),'/V_', m, '\n')
             }
             defs
+          })
+
+setMethod('getCovariance', signature('Univariate', 'character'),
+          function (object, factor, latents) {
+            if (!factor %in% getLatentFactors(object)) stop('Factor must be one of ACDE');
+            if (factor == 'A') cv <- paste0(latents[1], ' ~~ c(1, 0.5)*', latents[2]);
+            if (factor == 'C') cv <- paste0(latents[1], ' ~~ c(1, 1)*', latents[2]);
+            cv
           })
 
 setGeneric('getRegressions', function (object) standardGeneric('getRegressions'))

@@ -13,6 +13,7 @@ twinModel <- function () {
 setClass('twinModel', prototype=list())
 
 ### Internal methods
+# Get the measure with suffixes
 setGeneric('suffixedMeasures', function (object) standardGeneric('suffixedMeasures'))
 setMethod('suffixedMeasures', signature('twinModel'),
           function (object) {
@@ -21,22 +22,8 @@ setMethod('suffixedMeasures', signature('twinModel'),
 
 # Get the covariance structure
 setGeneric('getCovariance', function (object, factor, latents) standardGeneric('getCovariance'))
-setMethod('getCovariance', signature('twinModel', 'character'),
-          function (object, factor, latents) {
-            if (!factor %in% getLatentFactors(object)) stop('Factor must be one of ACDE');
-            if (factor == 'A') cv <- paste0(latents[1], ' ~~ c(1, 0.5)*', latents[2]);
-            if (factor == 'C') cv <- paste0(latents[1], ' ~~ c(1, 1)*', latents[2]);
-            cv
-          })
 
-### Methods that need to be defined among inheriting classes
-# Method for ACDE factors
-setGeneric('latentFactors', function (object) standardGeneric('latentFactors'))
-# Method to convert object to character lavaan syntax
-setGeneric('objectToChar', function (object) standardGeneric('objectToChar'))
-setGeneric('getDefinitions', function (object) standardGeneric('getDefinitions'))
-
-
+### Public methods
 #' Set the suffix for measurments in twin and co-twin
 #' @param t1 Measurement suffix for twin 1
 #' @param t2 Measurement suffix for twin 2
@@ -52,3 +39,11 @@ setMethod('as.character', signature('twinModel'),
           function (x) {
             objectToChar(x);
           })
+
+### Methods that need to be defined among inheriting classes
+# Method for ACDE factors
+setGeneric('latentFactors', function (object) standardGeneric('latentFactors'))
+# Method to convert object to character lavaan syntax
+setGeneric('objectToChar', function (object) standardGeneric('objectToChar'))
+# Method to get parameter definitions
+setGeneric('getDefinitions', function (object) standardGeneric('getDefinitions'))
