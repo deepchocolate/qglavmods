@@ -146,6 +146,27 @@ setMethod('getCholeskyDefinitions', signature('Bivariate'),
             defs <- paste0(defs, 'A_', m2, '_share := V_A_', m2, '/V_', m2, '\n')
             defs <- paste0(defs, 'C_', m2, '_share := V_C_', m2, '/V_', m2, '\n')
             defs <- paste0(defs, 'E_', m2, '_share := V_E_', m2, '/V_', m2, '\n')
+            rA <- getCorrParamLabel(object, 'A', object@mod1, object@mod2)
+            rC <- getCorrParamLabel(object, 'C', object@mod1, object@mod2)
+            rE <- getCorrParamLabel(object, 'E', object@mod1, object@mod2)
+            # ACE correlations
+            # With the exception of rE these are just defined to reduce the no of estimates
+            defs <- paste0(defs, 'corr_A := ', getLatentParameterLabel(object@mod1, 'A'), '*', rA, '/sqrt(A_', m1, '_share*A_', m2, '_share)\n')
+            defs <- paste0(defs, 'corr_C := ', getLatentParameterLabel(object@mod1, 'C'), '*', rC, '/sqrt(C', m1, '_share*C_', m2, '_share)\n')
+            # Within this framework rE is covariance and has to be converted to a correlation
+            eLab1 <- getLatentParameterLabel(object@mod1, 'E')
+            eLab2 <- getLatentParameterLabel(object@mod2, 'E')
+            defs <- paste0(defs, 'corr_E := ', getLatentParameterLabel(object@mod1, 'A'), '*', rE, '/sqrt(E_', m1, '_share*E_', m2, '_share)\n')
+            # Contributions to phenotypic correlations
+            m1 <- getMeasure(object@mod1)
+            m2 <- getMeasure(object@mod2)
+            defs <- paste0(defs, 'contr_A := corr_A*sqrt(A_', m1, '_share', ')*sqrt(A_', m2, '_share)\n')
+            defs <- paste0(defs, 'contr_C := corr_C*sqrt(C_', m1, '_share', ')*sqrt(C_', m2, '_share)\n')
+            defs <- paste0(defs, 'contr_E := corr_E*sqrt(E_', m1, '_share', ')*sqrt(E_', m2, '_share)\n')
+            defs <- paste0(defs, 'pheno := contr_A + contr_C + contr_E\n')
+            defs <- paste0(defs, 'contr_A_share := contr_A/pheno\n')
+            defs <- paste0(defs, 'contr_C_share := contr_C/pheno\n')
+            defs <- paste0(defs, 'contr_E_share := contr_E/pheno\n')
             defs
           })
 
@@ -230,10 +251,10 @@ setMethod('cholesky', signature('Bivariate'),
             l2 <- getLoading(object, 'C')
             res <- paste0(getResiduals(object), collapse='\n')
             cdefs <- getCholeskyDefinitions(object)
-            defs <- getDefinitions(object)
+            #defs <- getDefinitions(object)
             cnstrnts <- ''
             for (cnstr in names(object@constraints)) {
               cnstrnts <- paste0(cnstrnts, cnstr, object@constraints[[cnstr]], '\n')
             }
-            paste(r1, r2, l1, l2, res, cdefs, defs, cnstrnts, sep='\n')
+            paste(r1, r2, l1, l2, res, cdefs, cnstrnts, sep='\n')
           })
