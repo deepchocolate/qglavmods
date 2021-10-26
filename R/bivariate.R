@@ -50,17 +50,23 @@ setMethod('getLoading', signature('Bivariate', 'character'),
           function (object, fac) {
             l1 <- paste0(getLoading(object@mod1, fac), collapse='\n')
             l2 <- getLoading(object@mod2, fac)
-            lbl <- getCorrParamLabel(object, fac, object@mod1, object@mod2)
-            if (fac == 'A') parm <- paste0('c(', lbl, ', ', lbl, '_2)*')
-            else parm <- paste0('c(', lbl, ', ', lbl, ')*')
             m1 <- suffixedMeasures(object@mod1)
-            l2 <- paste0(l2, ' + ', parm, m1)
             lats1 <- suffixedLatent(object@mod1, fac)
             lats2 <- suffixedLatent(object@mod2, fac)
+            parm <- paste0(getLatentParameterLabel(object@mod1, fac), '_', getMeasure(object@mod2))
+            parm <- paste0('c(', parm, ', ', parm,')')
+            l2 <- paste0(l2, ' + ', parm, m1)
             cv1 <- getCovariance(object@mod1, fac, lats1)
             cv2 <- getCovariance(object@mod2, fac, lats2)
             out <- paste(l1, paste0(l2, collapse='\n'), cv1, cv2, sep='\n')
-            if (fac == 'A') out <- paste0(out, '\n', lbl, '_2 == 0.5*', lbl, '\n')
+            if (fac == 'A') {
+              lbl <- getCorrParamLabel(object, fac, object@mod1, object@mod2)
+              parm <- paste0('c(', lbl, ', ', lbl, '_2)*')
+              out <- paste0(out, '\n', lats1[1], ' ~~ ', parm, lats2[2], '\n')
+              out <- paste0(out, '\n', lats1[2], ' ~~ ', parm, lats2[1], '\n')
+              out <- paste0(out, lbl, '_2 == 0.5*', lbl, '\n')
+            }
+            #else parm <- paste0('c(', lbl, ', ', lbl, ')*')
             out
           })
 
