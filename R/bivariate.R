@@ -129,8 +129,8 @@ setMethod('getCholeskyDefinitions', signature('Bivariate'),
             defs <- ''
             lt1 <- getParameterLabels(object@mod1)
             m1 <- getMeasure(object@mod1)
-            V1A <- paste0('V_A_', m1, ' := ', getLatentParameterLabel(object@mod1, 'A'))
-            V1C <- paste0('V_C_', m1, ' := ', getLatentParameterLabel(object@mod1, 'C'))
+            V1A <- paste0('V_A_', m1, ' := ', getLatentParameterLabel(object@mod1, 'A'), '^2')
+            V1C <- paste0('V_C_', m1, ' := ', getLatentParameterLabel(object@mod1, 'C'), '^2')
             V1E <- paste0('V_E_', m1, ' := ', getLatentParameterLabel(object@mod1, 'E'))
             defs <- paste0(defs, V1A, '\n', V1C, '\n', V1E, '\n')
             defs <- paste0(defs, '\nV_', m1, ' := V_A_', m1, ' + V_C_', m1, ' + V_E_', m1, '\n')
