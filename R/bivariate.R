@@ -54,7 +54,7 @@ setMethod('getLoading', signature('Bivariate', 'character'),
             lats1 <- suffixedLatent(object@mod1, fac)
             lats2 <- suffixedLatent(object@mod2, fac)
             parm <- paste0(getLatentParameterLabel(object@mod1, fac), '_', getMeasure(object@mod2))
-            parm <- paste0('c(', parm, ', ', parm,')')
+            parm <- paste0('c(', parm, ', ', parm,')*')
             l2 <- paste0(l2, ' + ', parm, m1)
             cv1 <- getCovariance(object@mod1, fac, lats1)
             cv2 <- getCovariance(object@mod2, fac, lats2)
