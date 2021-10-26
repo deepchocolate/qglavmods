@@ -151,12 +151,12 @@ setMethod('getCholeskyDefinitions', signature('Bivariate'),
             rE <- getCorrParamLabel(object, 'E', object@mod1, object@mod2)
             # ACE correlations
             # With the exception of rE these are just defined to reduce the no of estimates
-            defs <- paste0(defs, 'corr_A := ', getLatentParameterLabel(object@mod1, 'A'), '*', rA, '/sqrt(A_', m1, '_share*A_', m2, '_share)\n')
-            defs <- paste0(defs, 'corr_C := ', getLatentParameterLabel(object@mod1, 'C'), '*', rC, '/sqrt(C_', m1, '_share*C_', m2, '_share)\n')
+            defs <- paste0(defs, 'corr_A := ', rA, '/sqrt(A_', m1, '_share*A_', m2, '_share)\n')
+            defs <- paste0(defs, 'corr_C := ', rC, '/sqrt(C_', m1, '_share*C_', m2, '_share)\n')
             # Within this framework rE is covariance and has to be converted to a correlation
             eLab1 <- getLatentParameterLabel(object@mod1, 'E')
             eLab2 <- getLatentParameterLabel(object@mod2, 'E')
-            defs <- paste0(defs, 'corr_E := ', getLatentParameterLabel(object@mod1, 'E'), '*', rE, '/sqrt(E_', m1, '_share*E_', m2, '_share)\n')
+            defs <- paste0(defs, 'corr_E := ', rE, '/sqrt(E_', m1, '_share*E_', m2, '_share)\n')
             # Contributions to phenotypic correlations
             m1 <- getMeasure(object@mod1)
             m2 <- getMeasure(object@mod2)
