@@ -3,6 +3,7 @@
 export(addConstraint)
 export(bivTwinMod)
 export(bivTwinModel)
+export(cholesky)
 export(choleskyMod)
 export(correlatedFactors)
 export(getLatentFactors)

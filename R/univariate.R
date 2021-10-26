@@ -96,31 +96,42 @@ setMethod('setParameterLabels', signature('Univariate'),
             object
           })
 
-setMethod('latentFactors', signature('Univariate'),
+#' Get loading on a latent variable
+setGeneric('getLoading', function (object, fac) standardGeneric('getLoading'))
+setMethod('getLoading', signature('Univariate', 'character'),
+          function (object, fac) {
+            ms <- suffixedMeasures(object)
+            latParm <- getLatentParameterLabel(object, fac)
+            labs <- paste0('c(', latParm, ', ', latParm,')*')
+            lats <- suffixedLatent(object, fac)
+            paste0(lats, rep(' =~ ', 2), rep(labs, 2), ms)
+          })
+
+setGeneric('getResiduals', function (object) standardGeneric('getResiduals'))
+setMethod('getResiduals', signature('Univariate'),
           function (object) {
             ms <- suffixedMeasures(object)
+            latParm <- getLatentParameterLabel(object, 'E')
+            labs <- paste0(' ~~ c(', latParm,', ',latParm,')*')
+            paste0(ms, labs, ms)
+          })
+
+setMethod('latentFactors', signature('Univariate'),
+          function (object) {
             facs <- getLatentFactors(object)
-            f2Lab <- object@factors
-            if ('A' %in% facs) {
-              latParm <- getLatentParameterLabel(object, 'A')
-              labs <- paste0('c(', latParm,', ',latParm,')*')
-              lats <- suffixedLatent(object, 'A')
-              A <- paste(paste0(lats, rep(' =~ ', 2), rep(labs, 2), ms), collapse='\n')
-              A <- paste0(A, '\n', getCovariance(object, 'A', lats), collapse='\n')
-            }
-            if ('C' %in% facs) {
-              latParm <- getLatentParameterLabel(object, 'C')
-              labs <- paste0('c(', latParm,', ',latParm,')*')
-              lats <- suffixedLatent(object, 'C')
-              C <- paste(paste0(lats, rep(' =~ ', 2), rep(labs, 2), ms), collapse='\n')
-              C <- paste(C, getCovariance(object, 'C', lats), collapse='\n', sep='\n')
+            op <- ''
+            for (fac in facs) {
+              if (fac != 'E') {
+                lats <- suffixedLatent(object, fac)
+                ld <- paste(getLoading(object, fac), collapse='\n')
+                op <- paste(op, ld, getCovariance(object, fac, lats), collapse='\n', sep='\n')
+              }
             }
             if ('E' %in% facs) {
-              latParm <- getLatentParameterLabel(object, 'E')
-              labs <- paste0(' ~~ c(', latParm,', ',latParm,')*')
-              E <- paste(paste0(ms, rep(labs, 2), ms), collapse='\n')
+              res <- paste0(getResiduals(object), collapse='\n')
+              op <- paste0(op, '\n', res)
             }
-            paste(A, C, E, collapse='\n', sep='\n')
+            op
           })
 
 
@@ -136,7 +147,7 @@ setMethod('getDefinitions', signature('Univariate'),
               if (fac %in% facs) defs <- paste0(defs, fac, '_', m, '_share := ', getLatentParameterLabel(object, fac), '^2/V_', m, '\n')
             }
             if ('E' %in% facs) {
-              defs <- paste0(defs, 'E_', m,'_share := ', getLatentParameterLabel(object, 'E'),'/V_', m, '\n')
+              defs <- paste0(defs, 'E_', m,'_share := ', getLatentParameterLabel(object, 'E'),'/V_', m)
             }
             defs
           })
@@ -153,7 +164,7 @@ setGeneric('getRegressions', function (object) standardGeneric('getRegressions')
 setMethod('getRegressions', signature('Univariate'),
           function (object) {
             regs <- suffixFormula(object)
-            paste0(paste(regs, collapse="\n"), '\n')
+            paste(regs, collapse="\n")
           })
 
 setMethod('objectToChar', signature('Univariate'),
@@ -164,7 +175,7 @@ setMethod('objectToChar', signature('Univariate'),
             }
             latents <- paste0(latentFactors(object), '\n')
             defs <- getDefinitions(object)
-            paste0(regs, latents, defs, collapse='\n')
+            paste0(regs, latents, defs, sep='\n')
           })
 
 #' Add regression to the twin model

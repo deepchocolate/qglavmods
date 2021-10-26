@@ -44,6 +44,34 @@ setMethod('addConstraint', signature('Bivariate', 'character', 'character'),
             object
           })
 
+#' Get loadings.
+#' This is used for the cholesky model.
+setMethod('getLoading', signature('Bivariate', 'character'),
+          function (object, fac) {
+            l1 <- paste0(getLoading(object@mod1, fac), collapse='\n')
+            l2 <- getLoading(object@mod2, fac)
+            lbl <- getCorrParamLabel(object, fac, object@mod1, object@mod2)
+            parm <- paste0('c(', lbl, ', ', lbl, ')*')
+            m1 <- suffixedMeasures(object@mod1)
+            l2 <- paste0(l2, ' + ', parm, m1)
+            lats1 <- suffixedLatent(object@mod1, fac)
+            lats2 <- suffixedLatent(object@mod2, fac)
+            cv1 <- getCovariance(object@mod1, fac, lats1)
+            cv2 <- getCovariance(object@mod2, fac, lats2)
+            out <- paste(l1, paste0(l2, collapse='\n'), cv1, cv2, sep='\n')
+            out
+          })
+
+
+setMethod('getResiduals', signature('Bivariate'),
+          function (object) {
+            l1 <- getResiduals(object@mod1)
+            m1 <- suffixedMeasures(object@mod1)
+            parm <- getCorrParamLabel(object, 'E', object@mod1, object@mod2)
+            l2 <- getResiduals(object@mod2)
+            paste0(l1, '\n', paste0(l2, ' + c(', parm, ', ', parm, ')*'), m1)
+          })
+
 setGeneric('getLatentCorrelations', function (object, objA, objB) standardGeneric('getLatentCorrelations'))
 setMethod('getLatentCorrelations', signature('Bivariate', 'Univariate', 'Univariate'), 
           function (object, objA, objB) {
@@ -60,7 +88,6 @@ setMethod('getLatentCorrelations', signature('Bivariate', 'Univariate', 'Univari
             parm2 <- paste0('c(', paramLabel, ', ', paramLabel,')*')
             out <- paste0(facA1[1],' ~~ ', parm, facA2[2], '\n')
             out <- paste0(out, facA1[2],' ~~ ',parm, facA2[1], '\n')
-            #out <- paste0(out, 'rA_m1_m2_2 == 0.5*rA_m1_m2\n')
             out <- paste0(out, paramLabel, '_2 == 0.5*', paramLabel, '\n')
             # Cross-trait
             out <- paste0(out, facA1[1],' ~~ ', parm2, facA2[1], '\n')
@@ -91,6 +118,36 @@ setMethod('getLatentCorrelations', signature('Bivariate', 'Univariate', 'Univari
             out
           })
 
+#' Get parameter definitions for a bivariate cholesky model.
+#' Contrary to the correlated factors solution, the definitions in the univariate
+#' models cannot be used here.
+setGeneric('getCholeskyDefinitions', function (object) standardGeneric('getCholeskyDefinitions'))
+setMethod('getCholeskyDefinitions', signature('Bivariate'),
+          function (object) {
+            defs <- ''
+            lt1 <- getParameterLabels(object@mod1)
+            m1 <- getMeasure(object@mod1)
+            V1A <- paste0('V_A_', m1, ' := ', getLatentParameterLabel(object@mod1, 'A'), '^2')
+            V1C <- paste0('V_C_', m1, ' := ', getLatentParameterLabel(object@mod1, 'C'), '^2')
+            V1E <- paste0('V_E_', m1, ' := ', getLatentParameterLabel(object@mod1, 'E'))
+            defs <- paste0(defs, V1A, '\n', V1C, '\n', V1E, '\n')
+            defs <- paste0(defs, '\nV_', m1, ' := V_A_', m1, ' + V_C_', m1, ' + V_E_', m1, '\n')
+            defs <- paste0(defs, 'A_', m1, '_share := V_A_', m1, '/V_', m1, '\n')
+            defs <- paste0(defs, 'C_', m1, '_share := V_C_', m1, '/V_', m1, '\n')
+            defs <- paste0(defs, 'E_', m1, '_share := V_E_', m1, '/V_', m1, '\n')
+            m2 <- getMeasure(object@mod2)
+            V2A <- paste0('V_A_', m2, ' := ', getLatentParameterLabel(object@mod2, 'A'), '^2 + ', getCorrParamLabel(object, 'A', object@mod1, object@mod2),'^2')
+            V2C <- paste0('V_C_', m2, ' := ', getLatentParameterLabel(object@mod2, 'C'), '^2 + ', getCorrParamLabel(object, 'C', object@mod1, object@mod2),'^2')
+            V2E <- paste0('V_E_', m2, ' := ', getLatentParameterLabel(object@mod2, 'E'), ' + ', getCorrParamLabel(object, 'E', object@mod1, object@mod2))
+            defs <- paste0(defs, V2A, '\n', V2C, '\n', V2E, '\n')
+            defs <- paste0(defs, 'V_', m2, ' := V_A_', m2, ' + V_C_', m2, ' + V_E_', m2, '\n')
+            defs <- paste0(defs, 'A_', m2, '_share := V_A_', m2, '/V_', m2, '\n')
+            defs <- paste0(defs, 'C_', m2, '_share := V_C_', m2, '/V_', m2, '\n')
+            defs <- paste0(defs, 'E_', m2, '_share := V_E_', m2, '/V_', m2, '\n')
+            defs
+          })
+
+#' Get parameter definitions for a bivariate model.
 setMethod('getDefinitions', signature('Bivariate'),
           function (object) {
             # Variance explained in each trait
@@ -155,6 +212,26 @@ setMethod('correlatedFactors', signature('Bivariate'),
             for (cnstr in names(object@constraints)) {
               cnstrnts <- paste0(cnstrnts, cnstr, object@constraints[[cnstr]], '\n')
             }
-            out <- paste0(r1, r2, paste0(lat1,'\n'), paste0(lat2,'\n'), crs, def1, def2, defs, cnstrnts, collapse='\n\n')
+            out <- paste0(r1, '\n', r2, lat1, lat2, '\n', crs, def1, '\n', def2, '\n', defs, cnstrnts)
             out
+          })
+
+#' Formulate the cholesky model
+#' @param object The specified bivariate model.
+#' @export
+setGeneric('cholesky', function (object) standardGeneric('cholesky'))
+setMethod('cholesky', signature('Bivariate'),
+          function (object) {
+            r1 <- getRegressions(object@mod1)
+            r2 <- getRegressions(object@mod2)
+            l1 <- getLoading(object, 'A')
+            l2 <- getLoading(object, 'C')
+            res <- paste0(getResiduals(object), collapse='\n')
+            cdefs <- getCholeskyDefinitions(object)
+            defs <- getDefinitions(object)
+            cnstrnts <- ''
+            for (cnstr in names(object@constraints)) {
+              cnstrnts <- paste0(cnstrnts, cnstr, object@constraints[[cnstr]], '\n')
+            }
+            paste(r1, r2, l1, l2, res, cdefs, defs, cnstrnts, sep='\n')
           })
