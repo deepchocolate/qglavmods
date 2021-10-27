@@ -140,14 +140,11 @@ setMethod('getCholeskyDefinitions', signature('Bivariate'),
             V1C <- paste0('V_C_', m1, ' := ', getLatentParameterLabel(object@mod1, 'C'), '^2')
             V1E <- paste0('V_E_', m1, ' := ', getLatentParameterLabel(object@mod1, 'E'))
             defs <- paste0(defs, V1A, '\n', V1C, '\n', V1E, '\n')
-            defs <- paste0(defs, '\nV_', m1, ' := V_A_', m1, ' + V_C_', m1, ' + V_E_', m1, '\n')
+            defs <- paste0(defs, 'V_', m1, ' := V_A_', m1, ' + V_C_', m1, ' + V_E_', m1, '\n')
             defs <- paste0(defs, 'A_', m1, '_share := V_A_', m1, '/V_', m1, '\n')
             defs <- paste0(defs, 'C_', m1, '_share := V_C_', m1, '/V_', m1, '\n')
             defs <- paste0(defs, 'E_', m1, '_share := V_E_', m1, '/V_', m1, '\n')
             m2 <- getMeasure(object@mod2)
-            #V2A <- paste0('V_A_', m2, ' := ', getLatentParameterLabel(object@mod2, 'A'), '^2 + ', getCorrParamLabel(object, 'A', object@mod1, object@mod2),'^2')
-            #V2C <- paste0('V_C_', m2, ' := ', getLatentParameterLabel(object@mod2, 'C'), '^2 + ', getCorrParamLabel(object, 'C', object@mod1, object@mod2),'^2')
-            #V2E <- paste0('V_E_', m2, ' := ', getLatentParameterLabel(object@mod2, 'E'), ' + ', getCorrParamLabel(object, 'E', object@mod1, object@mod2))
             V2A <- paste0('V_A_', m2, ' := ', getLatentParameterLabel(object@mod2, 'A'), '^2')
             V2C <- paste0('V_C_', m2, ' := ', getLatentParameterLabel(object@mod2, 'C'), '^2')
             V2E <- paste0('V_E_', m2, ' := ', getLatentParameterLabel(object@mod2, 'E'))
@@ -156,9 +153,6 @@ setMethod('getCholeskyDefinitions', signature('Bivariate'),
             defs <- paste0(defs, 'A_', m2, '_share := V_A_', m2, '/V_', m2, '\n')
             defs <- paste0(defs, 'C_', m2, '_share := V_C_', m2, '/V_', m2, '\n')
             defs <- paste0(defs, 'E_', m2, '_share := V_E_', m2, '/V_', m2, '\n')
-            #rA <- getCorrParamLabel(object, 'A', object@mod1, object@mod2)
-            #rC <- getCorrParamLabel(object, 'C', object@mod1, object@mod2)
-            #rE <- getCorrParamLabel(object, 'E', object@mod1, object@mod2)
             # ACE correlations
             # With the exception of rE these are just defined to reduce the no of estimates
             defs <- paste0(defs, 'corr_A := a_', m1, '*a_', m1,'_', m2, '/sqrt(V_A_', m1, '*V_A_', m2, ')\n')
@@ -281,10 +275,10 @@ setMethod('cholesky', signature('Bivariate'),
             l2 <- getLoading(object, 'C')
             res <- paste0(getResiduals(object), collapse='\n')
             cdefs <- getCholeskyDefinitions(object)
-            #defs <- getDefinitions(object)
             cnstrnts <- ''
             for (cnstr in names(object@constraints)) {
               cnstrnts <- paste0(cnstrnts, cnstr, object@constraints[[cnstr]], '\n')
             }
-            paste(r1, r2, l1, l2, res, cdefs, cnstrnts, sep='\n')
+            cdefs <- paste0(cdefs, cnstrnts)
+            paste(r1, r2, l1, l2, res, cdefs, sep='\n')
           })
