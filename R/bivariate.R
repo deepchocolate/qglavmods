@@ -251,6 +251,26 @@ setMethod('correlatedFactors', signature('Bivariate'),
 
 #' Formulate the cholesky model
 #' @param object The specified bivariate model.
+#' @examples 
+#' require(lavaan)
+#' require(qglavmods)
+#' 
+#' # Create template model (ACE)
+#' mod1 <- univTwinModel()
+#' 
+#' # Add regression on measured variables.
+#' mod1 <- regress(mod, measure1 ~ 1 + someVar)
+#' 
+#' # Create another ACE model with regress on another measure
+#' mod2 <- regress(mod, measure2 ~ 1 + anotherVar)
+#' 
+#' # Create bivariate model
+#' bivMod <- bivTwinModel()
+#' 
+#' # Fit the model. Note that std.lv=T has to be used and that measured variables have to be standardized.
+#' # This may be due to a bug in lavaan, as using the option std.ov=T creates an error when including covariates.
+#' ft <- lavaan(cholesky(bivMod), data=wideData, group='zyg', group.label=c('MZ','DZ'), std.lv=T)
+#' summary(ft)
 #' @export
 setGeneric('cholesky', function (object) standardGeneric('cholesky'))
 setMethod('cholesky', signature('Bivariate'),
