@@ -59,13 +59,13 @@ setMethod('getLoading', signature('Bivariate', 'character'),
             cv1 <- getCovariance(object@mod1, fac, lats1)
             cv2 <- getCovariance(object@mod2, fac, lats2)
             out <- paste(l1, paste0(l2, collapse='\n'), cv1, cv2, sep='\n')
-            if (fac == 'A') {
-              lbl <- getCorrParamLabel(object, fac, object@mod1, object@mod2)
-              parm <- paste0('c(', lbl, ', ', lbl, '_2)*')
-              out <- paste0(out, '\n', lats1[1], ' ~~ ', parm, lats2[2], '\n')
-              out <- paste0(out, '\n', lats1[2], ' ~~ ', parm, lats2[1], '\n')
-              out <- paste0(out, lbl, '_2 == 0.5*', lbl, '\n')
-            }
+            #if (fac == 'A') {
+            #  lbl <- getCorrParamLabel(object, fac, object@mod1, object@mod2)
+            #  parm <- paste0('c(', lbl, ', ', lbl, '_2)*')
+            #  out <- paste0(out, '\n', lats1[1], ' ~~ ', parm, lats2[2], '\n')
+            #  out <- paste0(out, '\n', lats1[2], ' ~~ ', parm, lats2[1], '\n')
+            #  out <- paste0(out, lbl, '_2 == 0.5*', lbl, '\n')
+            #}
             #else parm <- paste0('c(', lbl, ', ', lbl, ')*')
             out
           })
@@ -160,12 +160,12 @@ setMethod('getCholeskyDefinitions', signature('Bivariate'),
             #rE <- getCorrParamLabel(object, 'E', object@mod1, object@mod2)
             # ACE correlations
             # With the exception of rE these are just defined to reduce the no of estimates
-            defs <- paste0(defs, 'corr_A := a_', getMeasure(object@mod1),'_', getMeasure(object@mod2), '/sqrt(V_A_', m1, '*V_A_', m2, ')\n')
-            defs <- paste0(defs, 'corr_C := c_', getMeasure(object@mod1),'_', getMeasure(object@mod2), '/sqrt(V_C_', m1, '*V_C_', m2, ')\n')
+            defs <- paste0(defs, 'corr_A := a_', m1, '*a_', m1,'_', m2, '/sqrt(V_A_', m1, '*V_A_', m2, ')\n')
+            defs <- paste0(defs, 'corr_C := c_', m1, '*c_', m1, '_', m2, '/sqrt(V_C_', m1, '*V_C_', m2, ')\n')
             # Within this framework rE is covariance and has to be converted to a correlation
             eLab1 <- getLatentParameterLabel(object@mod1, 'E')
             eLab2 <- getLatentParameterLabel(object@mod2, 'E')
-            defs <- paste0(defs, 'corr_E := e_', getMeasure(object@mod1),'_', getMeasure(object@mod2), '/sqrt(V_E_', m1, '*V_E_', m2, ')\n')
+            defs <- paste0(defs, 'corr_E := e_', m1, '*e_', m1, '_', m2, '/sqrt(V_E_', m1, '*V_E_', m2, ')\n')
             # Contributions to phenotypic correlations
             m1 <- getMeasure(object@mod1)
             m2 <- getMeasure(object@mod2)
