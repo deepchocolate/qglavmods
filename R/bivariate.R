@@ -75,7 +75,8 @@ setMethod('getResiduals', signature('Bivariate'),
           function (object) {
             l1 <- getResiduals(object@mod1)
             m1 <- suffixedMeasures(object@mod1)
-            parm <- getCorrParamLabel(object, 'E', object@mod1, object@mod2)
+            parm <- paste0('e_', getMeasure(object@mod1), '_', getMeasure(object@mod2))
+            #parm <- getCorrParamLabel(object, 'E', object@mod1, object@mod2)
             l2 <- getResiduals(object@mod2)
             paste0(l1, '\n', paste0(l2, ' + c(', parm, ', ', parm, ')*'), m1)
           })
